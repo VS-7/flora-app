@@ -1,6 +1,7 @@
 import '../../data/factories/repository_factory.dart';
 import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/collaborator_repository.dart';
+import '../../data/repositories/farm_repository.dart';
 import '../../data/repositories/payment_repository.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../data/repositories/sync_status_repository.dart';
@@ -9,15 +10,18 @@ import '../../domain/interfaces/sync_service.dart';
 import '../../domain/models/activity_model.dart';
 import '../../domain/models/auth_model.dart';
 import '../../domain/models/collaborator_model.dart';
+import '../../domain/models/farm_model.dart';
 import '../../domain/models/payment_model.dart';
 import '../../domain/models/user_model.dart';
 import '../../domain/services/activity_service.dart';
 import '../../domain/services/auth_service.dart';
 import '../../domain/services/collaborator_service.dart';
+import '../../domain/services/farm_service.dart';
 import '../../domain/services/payment_service.dart';
 import '../../domain/services/user_service.dart';
 import '../../domain/services/activity_sync_service.dart';
 import '../../domain/services/collaborator_sync_service.dart';
+import '../../domain/services/farm_sync_service.dart';
 import '../../domain/services/payment_sync_service.dart';
 import '../../domain/services/user_sync_service.dart';
 import '../../domain/services/sync_manager.dart';
@@ -55,6 +59,11 @@ class ServiceFactory {
     return AuthService(repository);
   }
 
+  static Service<Farm> createFarmService() {
+    final repository = RepositoryFactory.createFarmRepository(syncAware: true);
+    return FarmService(repository);
+  }
+
   // Métodos para criar serviços de sincronização
   static SyncService<Activity> createActivitySyncService() {
     final repository =
@@ -83,19 +92,6 @@ class ServiceFactory {
     );
   }
 
-  static SyncService<Payment> createPaymentSyncService() {
-    final repository =
-        RepositoryFactory.createPaymentRepository() as PaymentRepository;
-    final syncStatusRepository = SyncStatusRepository();
-    final connectivityHelper = ConnectivityHelper();
-
-    return PaymentSyncService(
-      localRepository: repository,
-      syncStatusRepository: syncStatusRepository,
-      connectivityHelper: connectivityHelper,
-    );
-  }
-
   static SyncService<User> createUserSyncService() {
     final repository =
         RepositoryFactory.createUserRepository() as UserRepository;
@@ -109,16 +105,41 @@ class ServiceFactory {
     );
   }
 
-  static SyncManager createSyncManager() {
+  static SyncService<Payment> createPaymentSyncService() {
+    final repository =
+        RepositoryFactory.createPaymentRepository() as PaymentRepository;
+    final syncStatusRepository = SyncStatusRepository();
     final connectivityHelper = ConnectivityHelper();
-    final syncManager = SyncManager(connectivityHelper);
 
-    // Registrar todos os serviços de sincronização
-    syncManager.registerSyncService(createActivitySyncService());
-    syncManager.registerSyncService(createCollaboratorSyncService());
-    syncManager.registerSyncService(createPaymentSyncService());
-    syncManager.registerSyncService(createUserSyncService());
+    return PaymentSyncService(
+      localRepository: repository,
+      syncStatusRepository: syncStatusRepository,
+      connectivityHelper: connectivityHelper,
+    );
+  }
 
-    return syncManager;
+  static SyncService<Farm> createFarmSyncService() {
+    final repository =
+        RepositoryFactory.createFarmRepository() as FarmRepository;
+    final syncStatusRepository = SyncStatusRepository();
+    final connectivityHelper = ConnectivityHelper();
+
+    return FarmSyncService(
+      localRepository: repository,
+      syncStatusRepository: syncStatusRepository,
+      connectivityHelper: connectivityHelper,
+    );
+  }
+
+  // Método para criar o Sync Manager
+  static SyncManager createSyncManager() {
+    return SyncManager(
+      activitySyncService: createActivitySyncService(),
+      userSyncService: createUserSyncService(),
+      collaboratorSyncService: createCollaboratorSyncService(),
+      paymentSyncService: createPaymentSyncService(),
+      farmSyncService: createFarmSyncService(),
+      connectivityHelper: ConnectivityHelper(),
+    );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../../domain/models/payment_model.dart';
 import '../../providers/activity_provider.dart';
 import '../../../utils/app_theme.dart';
 

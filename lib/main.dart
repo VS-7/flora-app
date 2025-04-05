@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'data/database/app_database.dart';
 import 'data/database/supabase_config.dart';
 import 'presentation/factories/provider_factory.dart';
@@ -12,6 +14,10 @@ import 'presentation/views/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar a localização para português (Brasil)
+  await initializeDateFormatting('pt_BR', null);
+  Intl.defaultLocale = 'pt_BR';
 
   // Carregar variáveis de ambiente
   //  await dotenv.load(fileName: ".env");

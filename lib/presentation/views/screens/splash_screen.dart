@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../presentation/providers/auth_provider.dart';
+import '../../../presentation/providers/farm_provider.dart';
 import '../../../presentation/providers/user_provider.dart';
+import 'farm_onboarding_screen.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
 import 'user_registration_screen.dart';
@@ -28,6 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final farmProvider = Provider.of<FarmProvider>(context, listen: false);
 
     // Inicialize os providers
     await authProvider.initialize();
@@ -36,11 +39,23 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
+      // Carregue as fazendas do usuário autenticado
+      await farmProvider.initialize(authProvider.currentAuth!.id);
+
+      if (!mounted) return;
+
       if (userProvider.isUserRegistered) {
-        // Se estiver autenticado e registrado, vá para a tela principal
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-        );
+        if (farmProvider.hasFarms) {
+          // Se estiver autenticado, registrado e tiver fazendas, vá para a tela principal
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
+        } else {
+          // Se estiver autenticado e registrado, mas não tiver fazendas, vá para onboarding
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const FarmOnboardingScreen()),
+          );
+        }
       } else {
         // Se estiver autenticado mas não registrado, vá para registro
         Navigator.of(context).pushReplacement(

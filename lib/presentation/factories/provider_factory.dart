@@ -4,10 +4,12 @@ import '../../domain/factories/service_factory.dart';
 import '../../domain/services/activity_service.dart';
 import '../../domain/services/auth_service.dart';
 import '../../domain/services/collaborator_service.dart';
+import '../../domain/services/farm_service.dart';
 import '../../domain/services/payment_service.dart';
 import '../../domain/services/user_service.dart';
 import '../providers/activity_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/farm_provider.dart';
 import '../providers/user_provider.dart';
 
 class ProviderFactory {
@@ -36,6 +38,11 @@ class ProviderFactory {
     return AuthProvider(authService: authService);
   }
 
+  static FarmProvider createFarmProvider() {
+    final farmService = ServiceFactory.createFarmService() as FarmService;
+    return FarmProvider(farmService: farmService);
+  }
+
   static List<SingleChildWidget> createProviders() {
     return [
       ChangeNotifierProvider<UserProvider>(create: (_) => createUserProvider()),
@@ -43,6 +50,7 @@ class ProviderFactory {
         create: (_) => createActivityProvider(),
       ),
       ChangeNotifierProvider<AuthProvider>(create: (_) => createAuthProvider()),
+      ChangeNotifierProvider<FarmProvider>(create: (_) => createFarmProvider()),
     ];
   }
 }

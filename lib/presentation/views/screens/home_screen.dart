@@ -7,10 +7,8 @@ import '../../providers/activity_provider.dart';
 import '../../providers/user_provider.dart';
 import '../screens/activity_form_screen.dart';
 import '../screens/payment_form_screen.dart';
-import '../screens/user_registration_screen.dart';
 import '../widgets/home/activity_list_widget.dart';
 import '../../../utils/app_theme.dart';
-import '../components/glass_bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

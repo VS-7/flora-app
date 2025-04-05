@@ -22,7 +22,7 @@ class AppDatabase {
     String path = join(await getDatabasesPath(), 'flora_app.db');
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDb,
       onUpgrade: _onUpgrade,
     );
@@ -36,6 +36,10 @@ class AppDatabase {
     if (oldVersion < 3) {
       // Adicionar tabela de autenticação se estiver atualizando para a versão 3
       await _createAuthTable(db);
+    }
+    if (oldVersion < 4) {
+      // Adicionar tabela de fazendas se estiver atualizando para a versão 4
+      await _createFarmTable(db);
     }
   }
 
@@ -60,7 +64,8 @@ class AppDatabase {
         cost REAL,
         area_in_hectares REAL,
         quantity_in_bags INTEGER,
-        notes TEXT
+        notes TEXT,
+        farm_id TEXT
       )
     ''');
 
@@ -69,7 +74,8 @@ class AppDatabase {
       CREATE TABLE collaborators(
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        daily_rate REAL NOT NULL
+        daily_rate REAL NOT NULL,
+        farm_id TEXT
       )
     ''');
 
@@ -81,6 +87,7 @@ class AppDatabase {
         amount REAL NOT NULL,
         collaborator_id TEXT NOT NULL,
         description TEXT,
+        farm_id TEXT,
         FOREIGN KEY (collaborator_id) REFERENCES collaborators(id)
       )
     ''');
@@ -90,6 +97,9 @@ class AppDatabase {
 
     // Criar tabela de autenticação
     await _createAuthTable(db);
+
+    // Criar tabela de fazendas
+    await _createFarmTable(db);
   }
 
   Future<void> _createSyncStatusTable(Database db) async {
@@ -113,6 +123,22 @@ class AppDatabase {
         email TEXT NOT NULL,
         token TEXT,
         expires_at TEXT
+      )
+    ''');
+  }
+
+  Future<void> _createFarmTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE farms(
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        location TEXT,
+        user_id TEXT NOT NULL,
+        description TEXT,
+        total_area REAL,
+        main_crop TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
       )
     ''');
   }
