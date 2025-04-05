@@ -20,7 +20,19 @@ class AppDatabase {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'flora_app.db');
-    return await openDatabase(path, version: 1, onCreate: _createDb);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDb,
+      onUpgrade: _onUpgrade,
+    );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Adicionar tabela de sincronização se estiver atualizando para a versão 2
+      await _createSyncStatusTable(db);
+    }
   }
 
   Future<void> _createDb(Database db, int version) async {
@@ -66,6 +78,23 @@ class AppDatabase {
         collaborator_id TEXT NOT NULL,
         description TEXT,
         FOREIGN KEY (collaborator_id) REFERENCES collaborators(id)
+      )
+    ''');
+
+    // Criar tabela de status de sincronização
+    await _createSyncStatusTable(db);
+  }
+
+  Future<void> _createSyncStatusTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE sync_status(
+        entity_id TEXT NOT NULL,
+        entity_type TEXT NOT NULL,
+        state TEXT NOT NULL,
+        last_sync_time TEXT NOT NULL,
+        last_local_update TEXT NOT NULL,
+        version INTEGER NOT NULL,
+        PRIMARY KEY (entity_id, entity_type)
       )
     ''');
   }

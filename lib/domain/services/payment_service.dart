@@ -1,13 +1,25 @@
 import 'package:uuid/uuid.dart';
 import '../interfaces/service.dart';
+import '../interfaces/repository.dart';
 import '../models/payment_model.dart';
 import '../../data/repositories/payment_repository.dart';
+import '../../data/repositories/sync_aware_repository.dart';
 
 class PaymentService implements Service<Payment> {
-  final PaymentRepository _repository;
+  final Repository<Payment> _repository;
+  final PaymentRepository _paymentRepository;
   final _uuid = const Uuid();
 
-  PaymentService(this._repository);
+  PaymentService(Repository<Payment> repository)
+    : _repository = repository,
+      _paymentRepository =
+          repository is PaymentRepository
+              ? repository
+              : (repository is SyncAwareRepository<Payment>)
+              ? (repository.baseRepository as PaymentRepository)
+              : throw ArgumentError(
+                'Repository deve ser do tipo PaymentRepository ou SyncAwareRepository<Payment>',
+              );
 
   @override
   Future<List<Payment>> getAll() async {
@@ -70,17 +82,19 @@ class PaymentService implements Service<Payment> {
   }
 
   Future<List<Payment>> getPaymentsByCollaborator(String collaboratorId) async {
-    return await _repository.getPaymentsByCollaborator(collaboratorId);
+    return await _paymentRepository.getPaymentsByCollaborator(collaboratorId);
   }
 
   Future<double> getTotalPaymentsByCollaborator(String collaboratorId) async {
-    return await _repository.getTotalPaymentsByCollaborator(collaboratorId);
+    return await _paymentRepository.getTotalPaymentsByCollaborator(
+      collaboratorId,
+    );
   }
 
   Future<List<Payment>> getPaymentsInDateRange(
     DateTime startDate,
     DateTime endDate,
   ) async {
-    return await _repository.getPaymentsInDateRange(startDate, endDate);
+    return await _paymentRepository.getPaymentsInDateRange(startDate, endDate);
   }
 }

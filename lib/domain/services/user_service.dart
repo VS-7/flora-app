@@ -1,13 +1,25 @@
 import 'package:uuid/uuid.dart';
 import '../interfaces/service.dart';
+import '../interfaces/repository.dart';
 import '../models/user_model.dart';
 import '../../data/repositories/user_repository.dart';
+import '../../data/repositories/sync_aware_repository.dart';
 
 class UserService implements Service<User> {
-  final UserRepository _repository;
+  final Repository<User> _repository;
+  final UserRepository _userRepository;
   final _uuid = const Uuid();
 
-  UserService(this._repository);
+  UserService(Repository<User> repository)
+    : _repository = repository,
+      _userRepository =
+          repository is UserRepository
+              ? repository
+              : (repository is SyncAwareRepository<User>)
+              ? (repository.baseRepository as UserRepository)
+              : throw ArgumentError(
+                'Repository deve ser do tipo UserRepository ou SyncAwareRepository<User>',
+              );
 
   @override
   Future<List<User>> getAll() async {

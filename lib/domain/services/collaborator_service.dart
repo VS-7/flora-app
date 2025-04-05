@@ -1,13 +1,25 @@
 import 'package:uuid/uuid.dart';
 import '../interfaces/service.dart';
+import '../interfaces/repository.dart';
 import '../models/collaborator_model.dart';
 import '../../data/repositories/collaborator_repository.dart';
+import '../../data/repositories/sync_aware_repository.dart';
 
 class CollaboratorService implements Service<Collaborator> {
-  final CollaboratorRepository _repository;
+  final Repository<Collaborator> _repository;
+  final CollaboratorRepository _collaboratorRepository;
   final _uuid = const Uuid();
 
-  CollaboratorService(this._repository);
+  CollaboratorService(Repository<Collaborator> repository)
+    : _repository = repository,
+      _collaboratorRepository =
+          repository is CollaboratorRepository
+              ? repository
+              : (repository is SyncAwareRepository<Collaborator>)
+              ? (repository.baseRepository as CollaboratorRepository)
+              : throw ArgumentError(
+                'Repository deve ser do tipo CollaboratorRepository ou SyncAwareRepository<Collaborator>',
+              );
 
   @override
   Future<List<Collaborator>> getAll() async {

@@ -1,13 +1,25 @@
 import 'package:uuid/uuid.dart';
 import '../interfaces/service.dart';
+import '../interfaces/repository.dart';
 import '../models/activity_model.dart';
 import '../../data/repositories/activity_repository.dart';
+import '../../data/repositories/sync_aware_repository.dart';
 
 class ActivityService implements Service<Activity> {
-  final ActivityRepository _repository;
+  final Repository<Activity> _repository;
+  final ActivityRepository _activityRepository;
   final _uuid = const Uuid();
 
-  ActivityService(this._repository);
+  ActivityService(Repository<Activity> repository)
+    : _repository = repository,
+      _activityRepository =
+          repository is ActivityRepository
+              ? repository
+              : (repository is SyncAwareRepository<Activity>)
+              ? (repository.baseRepository as ActivityRepository)
+              : throw ArgumentError(
+                'Repository deve ser do tipo ActivityRepository ou SyncAwareRepository<Activity>',
+              );
 
   @override
   Future<List<Activity>> getAll() async {
@@ -82,18 +94,21 @@ class ActivityService implements Service<Activity> {
   }
 
   Future<List<Activity>> getActivitiesByType(ActivityType type) async {
-    return await _repository.getActivitiesByType(type);
+    return await _activityRepository.getActivitiesByType(type);
   }
 
   Future<List<Activity>> getActivitiesByDate(DateTime date) async {
-    return await _repository.getActivitiesByDate(date);
+    return await _activityRepository.getActivitiesByDate(date);
   }
 
   Future<List<Activity>> getActivitiesInDateRange(
     DateTime startDate,
     DateTime endDate,
   ) async {
-    return await _repository.getActivitiesInDateRange(startDate, endDate);
+    return await _activityRepository.getActivitiesInDateRange(
+      startDate,
+      endDate,
+    );
   }
 
   bool needsAlert(ActivityType type, int daysThreshold) {
