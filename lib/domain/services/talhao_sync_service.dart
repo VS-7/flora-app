@@ -1,12 +1,12 @@
 import '../interfaces/repository.dart';
-import '../models/lot_model.dart';
+import '../models/talhao_model.dart';
 import '../../data/repositories/sync_status_repository.dart';
 import '../../utils/connectivity_helper.dart';
 import 'base_sync_service.dart';
 
-class LotSyncService extends BaseSyncService<Lot> {
-  LotSyncService({
-    required Repository<Lot> localRepository,
+class TalhaoSyncService extends BaseSyncService<Talhao> {
+  TalhaoSyncService({
+    required Repository<Talhao> localRepository,
     required SyncStatusRepository syncStatusRepository,
     required ConnectivityHelper connectivityHelper,
   }) : super(
@@ -14,11 +14,11 @@ class LotSyncService extends BaseSyncService<Lot> {
          syncStatusRepository: syncStatusRepository,
          connectivityHelper: connectivityHelper,
          tableName: 'lots',
-         entityType: 'lot',
+         entityType: 'talhao',
        );
 
   @override
-  Map<String, dynamic> entityToSupabaseMap(Lot entity) {
+  Map<String, dynamic> entityToSupabaseMap(Talhao entity) {
     final map = entity.toMap();
     // Add specific fields for Supabase, if needed
     map['updated_at'] = DateTime.now().toIso8601String();
@@ -26,7 +26,7 @@ class LotSyncService extends BaseSyncService<Lot> {
   }
 
   @override
-  Lot supabaseDataToEntity(Map<String, dynamic> data) {
-    return Lot.fromMap(data);
+  Talhao supabaseDataToEntity(Map<String, dynamic> data) {
+    return Talhao.fromMap(data);
   }
 }

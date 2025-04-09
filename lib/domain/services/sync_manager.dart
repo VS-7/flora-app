@@ -3,20 +3,31 @@ import '../../utils/connectivity_helper.dart';
 import '../interfaces/sync_service.dart';
 import '../models/farm_model.dart';
 import '../models/employee_model.dart';
+import '../models/product_model.dart';
+import '../models/talhao_model.dart';
 
 class SyncManager {
   final ConnectivityHelper _connectivityHelper;
   final SyncService<Farm> farmSyncService;
   final SyncService<Employee> employeeSyncService;
+  final SyncService<Product> productSyncService;
+  final SyncService<Talhao> talhaoSyncService;
   Timer? _syncTimer;
 
   SyncManager({
     required this.farmSyncService,
     required this.employeeSyncService,
+    required this.productSyncService,
+    required this.talhaoSyncService,
     required ConnectivityHelper connectivityHelper,
   }) : _connectivityHelper = connectivityHelper;
 
-  List<SyncService> get _syncServices => [farmSyncService, employeeSyncService];
+  List<SyncService> get _syncServices => [
+    farmSyncService,
+    employeeSyncService,
+    productSyncService,
+    talhaoSyncService,
+  ];
 
   Future<void> syncAll() async {
     if (!_connectivityHelper.isConnected) {

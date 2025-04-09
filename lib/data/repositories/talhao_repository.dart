@@ -1,20 +1,20 @@
 import 'package:sqflite/sqflite.dart';
 import '../../domain/interfaces/repository.dart';
-import '../../domain/models/lot_model.dart';
+import '../../domain/models/talhao_model.dart';
 import '../database/app_database.dart';
 
-class LotRepository implements Repository<Lot> {
+class TalhaoRepository implements Repository<Talhao> {
   final AppDatabase _appDatabase = AppDatabase();
 
   @override
-  Future<List<Lot>> getAll() async {
+  Future<List<Talhao>> getAll() async {
     final db = await _appDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query('lots');
-    return List.generate(maps.length, (i) => Lot.fromMap(maps[i]));
+    return List.generate(maps.length, (i) => Talhao.fromMap(maps[i]));
   }
 
   @override
-  Future<Lot?> getById(String id) async {
+  Future<Talhao?> getById(String id) async {
     final db = await _appDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'lots',
@@ -23,13 +23,13 @@ class LotRepository implements Repository<Lot> {
     );
 
     if (maps.isNotEmpty) {
-      return Lot.fromMap(maps.first);
+      return Talhao.fromMap(maps.first);
     }
     return null;
   }
 
   @override
-  Future<void> insert(Lot entity) async {
+  Future<void> insert(Talhao entity) async {
     final db = await _appDatabase.database;
     await db.insert(
       'lots',
@@ -39,7 +39,7 @@ class LotRepository implements Repository<Lot> {
   }
 
   @override
-  Future<void> update(Lot entity) async {
+  Future<void> update(Talhao entity) async {
     final db = await _appDatabase.database;
     await db.update(
       'lots',
@@ -55,13 +55,13 @@ class LotRepository implements Repository<Lot> {
     await db.delete('lots', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<List<Lot>> getLotsByFarmId(String farmId) async {
+  Future<List<Talhao>> getTalhoesByFarmId(String farmId) async {
     final db = await _appDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'lots',
       where: 'farm_id = ?',
       whereArgs: [farmId],
     );
-    return List.generate(maps.length, (i) => Lot.fromMap(maps[i]));
+    return List.generate(maps.length, (i) => Talhao.fromMap(maps[i]));
   }
 }

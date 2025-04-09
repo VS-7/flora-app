@@ -1,6 +1,6 @@
 import '../interfaces/entity.dart';
 
-class Lot implements Entity {
+class Talhao implements Entity {
   @override
   final String id;
   final String name;
@@ -11,7 +11,7 @@ class Lot implements Entity {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Lot({
+  Talhao({
     required this.id,
     required this.name,
     required this.area,
@@ -22,8 +22,8 @@ class Lot implements Entity {
     required this.updatedAt,
   });
 
-  factory Lot.fromMap(Map<String, dynamic> map) {
-    return Lot(
+  factory Talhao.fromMap(Map<String, dynamic> map) {
+    return Talhao(
       id: map['id'],
       name: map['name'],
       area: map['area'].toDouble(),
@@ -56,13 +56,13 @@ class Lot implements Entity {
     };
   }
 
-  Lot copyWith({
+  Talhao copyWith({
     String? name,
     double? area,
     String? currentHarvest,
     Map<String, double>? coordinates,
   }) {
-    return Lot(
+    return Talhao(
       id: this.id,
       name: name ?? this.name,
       area: area ?? this.area,

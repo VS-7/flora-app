@@ -1,40 +1,40 @@
 import 'package:uuid/uuid.dart';
 import '../interfaces/service.dart';
 import '../interfaces/repository.dart';
-import '../models/lot_model.dart';
-import '../../data/repositories/lot_repository.dart';
+import '../models/talhao_model.dart';
+import '../../data/repositories/talhao_repository.dart';
 import '../../data/repositories/sync_aware_repository.dart';
 
-class LotService implements Service<Lot> {
-  final Repository<Lot> _repository;
-  final LotRepository _lotRepository;
+class TalhaoService implements Service<Talhao> {
+  final Repository<Talhao> _repository;
+  final TalhaoRepository _talhaoRepository;
   final _uuid = const Uuid();
 
-  LotService(Repository<Lot> repository)
+  TalhaoService(Repository<Talhao> repository)
     : _repository = repository,
-      _lotRepository =
-          repository is LotRepository
+      _talhaoRepository =
+          repository is TalhaoRepository
               ? repository
-              : (repository is SyncAwareRepository<Lot>)
-              ? (repository.baseRepository as LotRepository)
+              : (repository is SyncAwareRepository<Talhao>)
+              ? (repository.baseRepository as TalhaoRepository)
               : throw ArgumentError(
-                'Repository deve ser do tipo LotRepository ou SyncAwareRepository<Lot>',
+                'Repository deve ser do tipo TalhaoRepository ou SyncAwareRepository<Talhao>',
               );
 
   @override
-  Future<List<Lot>> getAll() async {
+  Future<List<Talhao>> getAll() async {
     return await _repository.getAll();
   }
 
   @override
-  Future<Lot?> getById(String id) async {
+  Future<Talhao?> getById(String id) async {
     return await _repository.getById(id);
   }
 
   @override
-  Future<void> save(Lot entity) async {
-    final existingLot = await _repository.getById(entity.id);
-    if (existingLot == null) {
+  Future<void> save(Talhao entity) async {
+    final existingTalhao = await _repository.getById(entity.id);
+    if (existingTalhao == null) {
       await _repository.insert(entity);
     } else {
       await _repository.update(entity);
@@ -46,14 +46,14 @@ class LotService implements Service<Lot> {
     await _repository.delete(id);
   }
 
-  Future<Lot> createLot({
+  Future<Talhao> createTalhao({
     required String name,
     required double area,
     required String currentHarvest,
     Map<String, double>? coordinates,
     required String farmId,
   }) async {
-    final lot = Lot(
+    final talhao = Talhao(
       id: _uuid.v4(),
       name: name,
       area: area,
@@ -63,30 +63,30 @@ class LotService implements Service<Lot> {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    await _repository.insert(lot);
-    return lot;
+    await _repository.insert(talhao);
+    return talhao;
   }
 
-  Future<void> updateLot({
+  Future<void> updateTalhao({
     required String id,
     String? name,
     double? area,
     String? currentHarvest,
     Map<String, double>? coordinates,
   }) async {
-    final lot = await _repository.getById(id);
-    if (lot != null) {
-      final updatedLot = lot.copyWith(
+    final talhao = await _repository.getById(id);
+    if (talhao != null) {
+      final updatedTalhao = talhao.copyWith(
         name: name,
         area: area,
         currentHarvest: currentHarvest,
         coordinates: coordinates,
       );
-      await _repository.update(updatedLot);
+      await _repository.update(updatedTalhao);
     }
   }
 
-  Future<List<Lot>> getLotsByFarmId(String farmId) async {
-    return await _lotRepository.getLotsByFarmId(farmId);
+  Future<List<Talhao>> getTalhoesByFarmId(String farmId) async {
+    return await _talhaoRepository.getTalhoesByFarmId(farmId);
   }
 }
