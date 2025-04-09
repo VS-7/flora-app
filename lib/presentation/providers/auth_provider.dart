@@ -56,7 +56,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authService.logout();
       _currentAuth = null;
+
       _clearError();
+      notifyListeners();
     } catch (e) {
       _setError('Falha ao fazer logout: ${e.toString()}');
     } finally {

@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Cores primárias
-  static const Color primaryGreen = Color.fromARGB(255, 84, 223, 48);
+  static const Color primaryGreen = Color(0xFF1DAB61);
   static const Color primaryDarkGreen = Color(0xFF2E7D32);
   static const Color accentGreen = Color(0xFF8BC34A);
 
   // Cores secundárias
   static const Color earthBrown = Color(0xFF795548);
-  static const Color warmBeige = Color(0xFFEFEBE9);
+  static const Color warmBeige = Color(0xFFFFFFFF);
   static const Color skyBlue = Color(0xFF03A9F4);
 
   // Cores de feedback

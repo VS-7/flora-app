@@ -163,6 +163,31 @@ class FarmProvider extends ChangeNotifier {
     }
   }
 
+  // Verificar se um usuário tem fazendas
+  Future<bool> userHasFarms(String userId) async {
+    // Sempre carregar fazendas diretamente do banco de dados
+    // ao invés de usar o cache local
+    _setLoading(true);
+    try {
+      final farms = await _farmService.getFarmsByUserId(userId);
+
+      // Atualizar o cache local
+      _farms = farms;
+
+      // Se houver fazendas e nenhuma fazenda selecionada, selecione a primeira
+      if (farms.isNotEmpty && _currentFarm == null) {
+        _currentFarm = farms.first;
+      }
+
+      return farms.isNotEmpty;
+    } catch (e) {
+      _setError('Falha ao verificar fazendas: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Utilitários para gerenciar estado
   void _setLoading(bool loading) {
     _isLoading = loading;

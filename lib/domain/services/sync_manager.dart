@@ -1,37 +1,19 @@
 import 'dart:async';
 import '../../utils/connectivity_helper.dart';
 import '../interfaces/sync_service.dart';
-import '../models/activity_model.dart';
-import '../models/collaborator_model.dart';
 import '../models/farm_model.dart';
-import '../models/payment_model.dart';
-import '../models/user_model.dart';
 
 class SyncManager {
   final ConnectivityHelper _connectivityHelper;
-  final SyncService<Activity> activitySyncService;
-  final SyncService<User> userSyncService;
-  final SyncService<Collaborator> collaboratorSyncService;
-  final SyncService<Payment> paymentSyncService;
   final SyncService<Farm> farmSyncService;
   Timer? _syncTimer;
 
   SyncManager({
-    required this.activitySyncService,
-    required this.userSyncService,
-    required this.collaboratorSyncService,
-    required this.paymentSyncService,
     required this.farmSyncService,
     required ConnectivityHelper connectivityHelper,
   }) : _connectivityHelper = connectivityHelper;
 
-  List<SyncService> get _syncServices => [
-    activitySyncService,
-    userSyncService,
-    collaboratorSyncService,
-    paymentSyncService,
-    farmSyncService,
-  ];
+  List<SyncService> get _syncServices => [farmSyncService];
 
   Future<void> syncAll() async {
     if (!_connectivityHelper.isConnected) {

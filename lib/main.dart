@@ -8,9 +8,13 @@ import 'data/database/supabase_config.dart';
 import 'presentation/factories/provider_factory.dart';
 import 'domain/factories/service_factory.dart';
 import 'utils/connectivity_helper.dart';
+import 'utils/app_theme.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'presentation/views/screens/splash_screen.dart';
+import 'presentation/views/screens/login_screen.dart';
+import 'presentation/views/screens/main_screen.dart';
+import 'presentation/views/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,10 +67,10 @@ class MyApp extends StatelessWidget {
       providers: ProviderFactory.createProviders(),
       child: MaterialApp(
         title: 'Flora App',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
         home: const SplashScreen(),
       ),
     );

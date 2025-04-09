@@ -1,10 +1,10 @@
-// lib/presentation/views/screens/main_screen.dart
 import 'package:flutter/material.dart';
-import 'activity_form_screen.dart';
-import 'payment_form_screen.dart';
-import 'user_registration_screen.dart';
-import 'home_screen.dart';
 import '../components/glass_bottom_bar.dart';
+import 'home_screen.dart';
+import 'product_screen.dart';
+import 'employee_screen.dart';
+import 'harvest_screen.dart';
+import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -18,9 +18,11 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    ActivityFormScreen(selectedDate: DateTime.now()),
-    PaymentFormScreen(selectedDate: DateTime.now()),
-    const UserRegistrationScreen(),
+    const ProductScreen(),
+    const EmployeeScreen(),
+    const HarvestScreen(),
+    const SettingsScreen(),
+    // Adicionar mais telas quando necessário
   ];
 
   void _onItemTapped(int index) {
@@ -32,12 +34,11 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: _screens.isNotEmpty ? _screens[_currentIndex] : Container(),
       bottomNavigationBar: GlassBottomBar(
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
-        floatingActionButton:
-            null, // O FloatingActionButton já está definido acima
+        floatingActionButton: null,
       ),
     );
   }

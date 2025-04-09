@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../presentation/providers/auth_provider.dart';
-import '../../../presentation/providers/user_provider.dart';
+import '../../../presentation/providers/farm_provider.dart';
+import '../../../utils/app_theme.dart';
 import 'main_screen.dart';
-import 'user_registration_screen.dart';
+import 'onboarding_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _passwordVisible = false;
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -25,178 +26,162 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _login(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (success && mounted) {
+        // Verificar se o usuário possui fazendas
+        final farmProvider = Provider.of<FarmProvider>(context, listen: false);
+        final hasFarms = await farmProvider.userHasFarms(
+          authProvider.currentAuth!.id,
+        );
+
+        if (mounted) {
+          if (hasFarms) {
+            // Se o usuário tem fazendas, ir para a tela principal
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+            );
+          } else {
+            // Se o usuário não tem fazendas, ir para o onboarding
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+            );
+          }
+        }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.error ?? 'Falha ao fazer login'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context);
-
-    // Se o usuário já estiver autenticado, direcionar para a tela principal
-    if (authProvider.isAuthenticated && userProvider.isUserRegistered) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-        );
-      });
-    }
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Login'), backgroundColor: Colors.green),
-      body: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Logo ou imagem do app
-              Padding(
-                padding: const EdgeInsets.only(bottom: 32.0),
-                child: Icon(Icons.eco, size: 80, color: Colors.green),
-              ),
-
-              // Título
-              Text(
-                'Flora App',
-                style: Theme.of(context).textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 40),
-
-              // Campo de email
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
+      backgroundColor:
+          isDarkMode ? AppTheme.darkBackground : AppTheme.lightBackground,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Logo e título
+                const SizedBox(height: 24),
+                Text(
+                  'Flora App',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        isDarkMode ? Colors.white : AppTheme.primaryDarkGreen,
+                  ),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, digite seu email';
-                  }
-                  if (!RegExp(
-                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                  ).hasMatch(value)) {
-                    return 'Por favor, digite um email válido';
-                  }
-                  return null;
-                },
-              ),
+                const SizedBox(height: 40),
 
-              const SizedBox(height: 16),
-
-              // Campo de senha
-              TextFormField(
-                controller: _passwordController,
-                obscureText: !_passwordVisible,
-                decoration: InputDecoration(
-                  labelText: 'Senha',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _passwordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                // Campos de login
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: 'E-mail',
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _passwordVisible = !_passwordVisible;
-                      });
-                    },
                   ),
-                  border: const OutlineInputBorder(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira seu e-mail';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Por favor, insira um e-mail válido';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, digite sua senha';
-                  }
-                  if (value.length < 6) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
-                  }
-                  return null;
-                },
-              ),
-
-              // Mensagem de erro
-              if (authProvider.error != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    authProvider.error!,
-                    style: const TextStyle(color: Colors.red),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: !_isPasswordVisible,
+                  decoration: InputDecoration(
+                    hintText: 'Senha',
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira sua senha';
+                    }
+                    if (value.length < 6) {
+                      return 'A senha deve ter pelo menos 6 caracteres';
+                    }
+                    return null;
+                  },
                 ),
+                const SizedBox(height: 24),
 
-              const SizedBox(height: 24),
-
-              // Botão de login
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                // Botão de login
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return ElevatedButton(
+                      onPressed:
+                          authProvider.isLoading ? null : () => _login(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child:
+                          authProvider.isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                'Entrar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                    );
+                  },
                 ),
-                onPressed:
-                    authProvider.isLoading
-                        ? null
-                        : () async {
-                          if (_formKey.currentState!.validate()) {
-                            final success = await authProvider.login(
-                              _emailController.text,
-                              _passwordController.text,
-                            );
-
-                            if (success) {
-                              // Verificar se o usuário já está registrado no app
-                              await userProvider.initialize();
-
-                              if (userProvider.isUserRegistered) {
-                                if (mounted) {
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (_) => const MainScreen(),
-                                    ),
-                                  );
-                                }
-                              } else {
-                                if (mounted) {
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => const UserRegistrationScreen(),
-                                    ),
-                                  );
-                                }
-                              }
-                            }
-                          }
-                        },
-                child:
-                    authProvider.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('ENTRAR'),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Opção para registrar
-              TextButton(
-                onPressed: () {
-                  // Aqui você poderia adicionar uma navegação para a tela de registro
-                  // caso queira implementar essa funcionalidade no futuro
-                },
-                child: const Text(
-                  'Não tem uma conta? Entre em contato para criar',
-                  style: TextStyle(color: Colors.green),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

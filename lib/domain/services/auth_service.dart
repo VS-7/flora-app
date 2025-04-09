@@ -71,9 +71,12 @@ class AuthService implements Service<Auth> {
         password: password,
       );
 
+      // Usar o ID da Supabase em vez de gerar um novo
+      final userId = response.user?.id ?? _uuid.v4();
+
       // Criar um objeto Auth com os dados retornados
       final auth = Auth(
-        id: _uuid.v4(),
+        id: userId,
         email: email,
         token: response.session?.accessToken,
         expiresAt:

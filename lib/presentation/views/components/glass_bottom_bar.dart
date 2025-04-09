@@ -26,8 +26,8 @@ class GlassBottomBar extends StatelessWidget {
           decoration: BoxDecoration(
             color:
                 isDarkMode
-                    ? Colors.grey.shade800.withOpacity(0.5)
-                    : Colors.white.withOpacity(0.5),
+                    ? Colors.grey.shade800.withOpacity(0.3)
+                    : Colors.white.withOpacity(0.3),
             border: Border(
               top: BorderSide(
                 color:
@@ -48,8 +48,8 @@ class GlassBottomBar extends StatelessWidget {
                     child: _buildNavItem(
                       context: context,
                       index: 0,
-                      icon: Icons.calendar_today,
-                      label: 'Calendário',
+                      icon: Icons.home,
+                      label: 'Home',
                     ),
                   ),
                   Expanded(
@@ -57,7 +57,7 @@ class GlassBottomBar extends StatelessWidget {
                       context: context,
                       index: 1,
                       icon: Icons.bar_chart,
-                      label: 'Relatório',
+                      label: 'Produtos',
                     ),
                   ),
                   Expanded(
@@ -65,7 +65,23 @@ class GlassBottomBar extends StatelessWidget {
                       context: context,
                       index: 2,
                       icon: Icons.person_add,
-                      label: 'Cadastro',
+                      label: 'Mão de Obra',
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      context: context,
+                      index: 3,
+                      icon: Icons.local_florist,
+                      label: 'Colheita',
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      context: context,
+                      index: 4,
+                      icon: Icons.settings,
+                      label: 'Configurações',
                     ),
                   ),
                 ],
@@ -98,7 +114,7 @@ class GlassBottomBar extends StatelessWidget {
             icon,
             color:
                 isSelected
-                    ? AppTheme.primaryGreen
+                    ? AppTheme.warmBeige
                     : isDarkMode
                     ? Colors.grey.shade400
                     : Colors.grey.shade600,
@@ -109,7 +125,7 @@ class GlassBottomBar extends StatelessWidget {
             style: TextStyle(
               color:
                   isSelected
-                      ? AppTheme.primaryGreen
+                      ? AppTheme.warmBeige
                       : isDarkMode
                       ? Colors.grey.shade400
                       : Colors.grey.shade600,
