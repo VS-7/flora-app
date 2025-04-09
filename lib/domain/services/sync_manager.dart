@@ -2,18 +2,21 @@ import 'dart:async';
 import '../../utils/connectivity_helper.dart';
 import '../interfaces/sync_service.dart';
 import '../models/farm_model.dart';
+import '../models/employee_model.dart';
 
 class SyncManager {
   final ConnectivityHelper _connectivityHelper;
   final SyncService<Farm> farmSyncService;
+  final SyncService<Employee> employeeSyncService;
   Timer? _syncTimer;
 
   SyncManager({
     required this.farmSyncService,
+    required this.employeeSyncService,
     required ConnectivityHelper connectivityHelper,
   }) : _connectivityHelper = connectivityHelper;
 
-  List<SyncService> get _syncServices => [farmSyncService];
+  List<SyncService> get _syncServices => [farmSyncService, employeeSyncService];
 
   Future<void> syncAll() async {
     if (!_connectivityHelper.isConnected) {
