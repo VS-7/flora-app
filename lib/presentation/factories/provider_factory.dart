@@ -6,11 +6,13 @@ import '../../domain/services/farm_service.dart';
 import '../../domain/services/employee_service.dart';
 import '../../domain/services/product_service.dart';
 import '../../domain/services/talhao_service.dart';
+import '../../domain/services/harvest_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/farm_provider.dart';
 import '../providers/employee_provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/talhao_provider.dart';
+import '../providers/harvest_provider.dart';
 
 class ProviderFactory {
   static AuthProvider createAuthProvider() {
@@ -40,6 +42,12 @@ class ProviderFactory {
     return TalhaoProvider(talhaoService: talhaoService);
   }
 
+  static HarvestProvider createHarvestProvider() {
+    final harvestService =
+        ServiceFactory.createHarvestService() as HarvestService;
+    return HarvestProvider(harvestService: harvestService);
+  }
+
   static List<SingleChildWidget> createProviders() {
     return [
       ChangeNotifierProvider<AuthProvider>(create: (_) => createAuthProvider()),
@@ -52,6 +60,9 @@ class ProviderFactory {
       ),
       ChangeNotifierProvider<TalhaoProvider>(
         create: (_) => createTalhaoProvider(),
+      ),
+      ChangeNotifierProvider<HarvestProvider>(
+        create: (_) => createHarvestProvider(),
       ),
     ];
   }

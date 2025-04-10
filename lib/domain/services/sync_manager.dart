@@ -5,6 +5,7 @@ import '../models/farm_model.dart';
 import '../models/employee_model.dart';
 import '../models/product_model.dart';
 import '../models/talhao_model.dart';
+import '../models/harvest_model.dart';
 
 class SyncManager {
   final ConnectivityHelper _connectivityHelper;
@@ -12,6 +13,7 @@ class SyncManager {
   final SyncService<Employee> employeeSyncService;
   final SyncService<Product> productSyncService;
   final SyncService<Talhao> talhaoSyncService;
+  final SyncService<Harvest> harvestSyncService;
   Timer? _syncTimer;
 
   SyncManager({
@@ -19,6 +21,7 @@ class SyncManager {
     required this.employeeSyncService,
     required this.productSyncService,
     required this.talhaoSyncService,
+    required this.harvestSyncService,
     required ConnectivityHelper connectivityHelper,
   }) : _connectivityHelper = connectivityHelper;
 
@@ -27,6 +30,7 @@ class SyncManager {
     employeeSyncService,
     productSyncService,
     talhaoSyncService,
+    harvestSyncService,
   ];
 
   Future<void> syncAll() async {

@@ -44,10 +44,10 @@ class HarvestProvider extends ChangeNotifier {
   }
 
   // Load harvests by lot ID
-  Future<void> loadHarvestsByLotId(String lotId) async {
+  Future<void> loadHarvestsByTalhaoId(String talhaoId) async {
     _setLoading(true);
     try {
-      _harvests = await _harvestService.getHarvestsByLotId(lotId);
+      _harvests = await _harvestService.getHarvestsByTalhaoId(talhaoId);
 
       // Reset current harvest if the list changes
       if (_harvests.isNotEmpty) {
@@ -121,7 +121,7 @@ class HarvestProvider extends ChangeNotifier {
     required int totalQuantity,
     required int quality,
     String? weather,
-    required String lotId,
+    required String talhaoId,
     required String farmId,
     List<String>? usedProducts,
   }) async {
@@ -133,7 +133,7 @@ class HarvestProvider extends ChangeNotifier {
         totalQuantity: totalQuantity,
         quality: quality,
         weather: weather,
-        lotId: lotId,
+        talhaoId: talhaoId,
         farmId: farmId,
         usedProducts: usedProducts,
       );
@@ -164,6 +164,7 @@ class HarvestProvider extends ChangeNotifier {
     int? totalQuantity,
     int? quality,
     String? weather,
+    String? talhaoId,
     List<String>? usedProducts,
   }) async {
     _setLoading(true);
@@ -175,6 +176,7 @@ class HarvestProvider extends ChangeNotifier {
         totalQuantity: totalQuantity,
         quality: quality,
         weather: weather,
+        talhaoId: talhaoId,
         usedProducts: usedProducts,
       );
 

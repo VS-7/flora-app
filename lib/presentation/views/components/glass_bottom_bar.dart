@@ -56,7 +56,7 @@ class GlassBottomBar extends StatelessWidget {
                     child: _buildNavItem(
                       context: context,
                       index: 1,
-                      icon: Icons.bar_chart,
+                      icon: Icons.inventory,
                       label: 'Produtos',
                     ),
                   ),
@@ -64,7 +64,7 @@ class GlassBottomBar extends StatelessWidget {
                     child: _buildNavItem(
                       context: context,
                       index: 2,
-                      icon: Icons.person_add,
+                      icon: Icons.people,
                       label: 'Mão de Obra',
                     ),
                   ),
@@ -72,6 +72,14 @@ class GlassBottomBar extends StatelessWidget {
                     child: _buildNavItem(
                       context: context,
                       index: 3,
+                      icon: Icons.crop_square,
+                      label: 'Talhões',
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      context: context,
+                      index: 4,
                       icon: Icons.local_florist,
                       label: 'Colheita',
                     ),
@@ -79,7 +87,7 @@ class GlassBottomBar extends StatelessWidget {
                   Expanded(
                     child: _buildNavItem(
                       context: context,
-                      index: 4,
+                      index: 5,
                       icon: Icons.settings,
                       label: 'Configurações',
                     ),

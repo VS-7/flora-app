@@ -3,6 +3,7 @@ import '../components/glass_bottom_bar.dart';
 import 'home_screen.dart';
 import 'product_screen.dart';
 import 'employee_screen.dart';
+import 'talhao_screen.dart';
 import 'harvest_screen.dart';
 import 'settings_screen.dart';
 
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const ProductScreen(),
     const EmployeeScreen(),
+    const TalhaoScreen(),
     const HarvestScreen(),
     const SettingsScreen(),
     // Adicionar mais telas quando necessário

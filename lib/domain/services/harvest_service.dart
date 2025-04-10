@@ -52,7 +52,7 @@ class HarvestService implements Service<Harvest> {
     required int totalQuantity,
     required int quality,
     String? weather,
-    required String lotId,
+    required String talhaoId,
     required String farmId,
     List<String>? usedProducts,
   }) async {
@@ -63,7 +63,7 @@ class HarvestService implements Service<Harvest> {
       totalQuantity: totalQuantity,
       quality: quality,
       weather: weather,
-      lotId: lotId,
+      talhaoId: talhaoId,
       farmId: farmId,
       usedProducts: usedProducts,
       createdAt: DateTime.now(),
@@ -80,6 +80,7 @@ class HarvestService implements Service<Harvest> {
     int? totalQuantity,
     int? quality,
     String? weather,
+    String? talhaoId,
     List<String>? usedProducts,
   }) async {
     final harvest = await _repository.getById(id);
@@ -91,6 +92,7 @@ class HarvestService implements Service<Harvest> {
         quality: quality,
         weather: weather,
         usedProducts: usedProducts,
+        talhaoId: talhaoId,
       );
       await _repository.update(updatedHarvest);
     }
@@ -100,8 +102,8 @@ class HarvestService implements Service<Harvest> {
     return await _harvestRepository.getHarvestsByFarmId(farmId);
   }
 
-  Future<List<Harvest>> getHarvestsByLotId(String lotId) async {
-    return await _harvestRepository.getHarvestsByLotId(lotId);
+  Future<List<Harvest>> getHarvestsByTalhaoId(String talhaoId) async {
+    return await _harvestRepository.getHarvestsByTalhaoId(talhaoId);
   }
 
   Future<List<Harvest>> getHarvestsByDateRange(

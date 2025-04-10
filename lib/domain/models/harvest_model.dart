@@ -8,7 +8,7 @@ class Harvest implements Entity {
   final int totalQuantity;
   final int quality;
   final String? weather;
-  final String lotId;
+  final String talhaoId;
   final String farmId;
   final List<String>? usedProducts; // List of product IDs
   final DateTime createdAt;
@@ -21,7 +21,7 @@ class Harvest implements Entity {
     required this.totalQuantity,
     required this.quality,
     this.weather,
-    required this.lotId,
+    required this.talhaoId,
     required this.farmId,
     this.usedProducts,
     required this.createdAt,
@@ -36,7 +36,7 @@ class Harvest implements Entity {
       totalQuantity: map['total_quantity'],
       quality: map['quality'],
       weather: map['weather'],
-      lotId: map['lot_id'],
+      talhaoId: map['talhao_id'],
       farmId: map['farm_id'],
       usedProducts:
           map['used_products'] != null
@@ -60,7 +60,7 @@ class Harvest implements Entity {
       'total_quantity': totalQuantity,
       'quality': quality,
       'weather': weather,
-      'lot_id': lotId,
+      'talhao_id': talhaoId,
       'farm_id': farmId,
       'used_products': usedProducts,
       'created_at': createdAt.toIso8601String(),
@@ -74,6 +74,7 @@ class Harvest implements Entity {
     int? totalQuantity,
     int? quality,
     String? weather,
+    String? talhaoId,
     List<String>? usedProducts,
   }) {
     return Harvest(
@@ -83,7 +84,7 @@ class Harvest implements Entity {
       totalQuantity: totalQuantity ?? this.totalQuantity,
       quality: quality ?? this.quality,
       weather: weather ?? this.weather,
-      lotId: this.lotId,
+      talhaoId: talhaoId ?? this.talhaoId,
       farmId: this.farmId,
       usedProducts: usedProducts ?? this.usedProducts,
       createdAt: this.createdAt,

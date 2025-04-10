@@ -60,9 +60,21 @@ class _SplashScreenState extends State<SplashScreen>
     if (isLoggedIn && mounted) {
       // Se o usuário estiver logado, verificar se ele possui fazendas
       final farmProvider = Provider.of<FarmProvider>(context, listen: false);
-      final hasFarms = await farmProvider.userHasFarms(
-        authProvider.currentAuth!.id,
-      );
+
+      // Obter o ID do usuário diretamente do Supabase se currentAuth for null
+      String? userId = authProvider.currentAuth?.id;
+
+      // Se mesmo assim estiver null, precisamos ir para o login
+      if (userId == null) {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
+        return;
+      }
+
+      final hasFarms = await farmProvider.userHasFarms(userId);
 
       if (mounted) {
         if (hasFarms) {

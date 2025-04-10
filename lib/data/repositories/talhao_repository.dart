@@ -9,7 +9,7 @@ class TalhaoRepository implements Repository<Talhao> {
   @override
   Future<List<Talhao>> getAll() async {
     final db = await _appDatabase.database;
-    final List<Map<String, dynamic>> maps = await db.query('lots');
+    final List<Map<String, dynamic>> maps = await db.query('talhoes');
     return List.generate(maps.length, (i) => Talhao.fromMap(maps[i]));
   }
 
@@ -17,7 +17,7 @@ class TalhaoRepository implements Repository<Talhao> {
   Future<Talhao?> getById(String id) async {
     final db = await _appDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'lots',
+      'talhoes',
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -32,7 +32,7 @@ class TalhaoRepository implements Repository<Talhao> {
   Future<void> insert(Talhao entity) async {
     final db = await _appDatabase.database;
     await db.insert(
-      'lots',
+      'talhoes',
       entity.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -42,7 +42,7 @@ class TalhaoRepository implements Repository<Talhao> {
   Future<void> update(Talhao entity) async {
     final db = await _appDatabase.database;
     await db.update(
-      'lots',
+      'talhoes',
       entity.toMap(),
       where: 'id = ?',
       whereArgs: [entity.id],
@@ -52,13 +52,13 @@ class TalhaoRepository implements Repository<Talhao> {
   @override
   Future<void> delete(String id) async {
     final db = await _appDatabase.database;
-    await db.delete('lots', where: 'id = ?', whereArgs: [id]);
+    await db.delete('talhoes', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<Talhao>> getTalhoesByFarmId(String farmId) async {
     final db = await _appDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'lots',
+      'talhoes',
       where: 'farm_id = ?',
       whereArgs: [farmId],
     );

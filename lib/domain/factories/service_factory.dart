@@ -3,6 +3,7 @@ import '../../data/repositories/farm_repository.dart';
 import '../../data/repositories/employee_repository.dart';
 import '../../data/repositories/product_repository.dart';
 import '../../data/repositories/talhao_repository.dart';
+import '../../data/repositories/harvest_repository.dart';
 import '../../data/repositories/sync_status_repository.dart';
 import '../../domain/interfaces/service.dart';
 import '../../domain/interfaces/sync_service.dart';
@@ -11,6 +12,7 @@ import '../../domain/models/farm_model.dart';
 import '../../domain/models/employee_model.dart';
 import '../../domain/models/product_model.dart';
 import '../../domain/models/talhao_model.dart';
+import '../../domain/models/harvest_model.dart';
 import '../../domain/services/auth_service.dart';
 import '../../domain/services/farm_service.dart';
 import '../../domain/services/farm_sync_service.dart';
@@ -20,6 +22,8 @@ import '../../domain/services/product_service.dart';
 import '../../domain/services/product_sync_service.dart';
 import '../../domain/services/talhao_service.dart';
 import '../../domain/services/talhao_sync_service.dart';
+import '../../domain/services/harvest_service.dart';
+import '../../domain/services/harvest_sync_service.dart';
 import '../../domain/services/sync_manager.dart';
 import '../../utils/connectivity_helper.dart';
 
@@ -53,6 +57,13 @@ class ServiceFactory {
       syncAware: true,
     );
     return TalhaoService(repository);
+  }
+
+  static Service<Harvest> createHarvestService() {
+    final repository = RepositoryFactory.createHarvestRepository(
+      syncAware: true,
+    );
+    return HarvestService(repository);
   }
 
   static SyncService<Farm> createFarmSyncService() {
@@ -107,6 +118,19 @@ class ServiceFactory {
     );
   }
 
+  static SyncService<Harvest> createHarvestSyncService() {
+    final repository =
+        RepositoryFactory.createHarvestRepository() as HarvestRepository;
+    final syncStatusRepository = SyncStatusRepository();
+    final connectivityHelper = ConnectivityHelper();
+
+    return HarvestSyncService(
+      localRepository: repository,
+      syncStatusRepository: syncStatusRepository,
+      connectivityHelper: connectivityHelper,
+    );
+  }
+
   // Método para criar o Sync Manager
   static SyncManager createSyncManager() {
     return SyncManager(
@@ -115,6 +139,7 @@ class ServiceFactory {
       employeeSyncService: createEmployeeSyncService(),
       productSyncService: createProductSyncService(),
       talhaoSyncService: createTalhaoSyncService(),
+      harvestSyncService: createHarvestSyncService(),
     );
   }
 }

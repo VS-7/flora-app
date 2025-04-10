@@ -43,7 +43,7 @@ class AppDatabase {
     }
     if (oldVersion < 5) {
       // Adicionar novas tabelas se estiver atualizando para a versão 5
-      await _createLotTable(db);
+      await _createTalhaoTable(db);
       await _createProductTable(db);
       await _createEmployeeTable(db);
       await _createTaskTable(db);
@@ -113,7 +113,7 @@ class AppDatabase {
     await _createFarmTable(db);
 
     // Criar novas tabelas do sistema de gestão de fazendas
-    await _createLotTable(db);
+    await _createTalhaoTable(db);
     await _createProductTable(db);
     await _createEmployeeTable(db);
     await _createTaskTable(db);
@@ -164,9 +164,9 @@ class AppDatabase {
     ''');
   }
 
-  Future<void> _createLotTable(Database db) async {
+  Future<void> _createTalhaoTable(Database db) async {
     await db.execute('''
-      CREATE TABLE lots(
+      CREATE TABLE talhoes(
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         area REAL NOT NULL,
@@ -241,12 +241,12 @@ class AppDatabase {
         total_quantity INTEGER NOT NULL,
         quality INTEGER NOT NULL,
         weather TEXT,
-        lot_id TEXT NOT NULL,
+        talhao_id TEXT NOT NULL,
         farm_id TEXT NOT NULL,
         used_products TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        FOREIGN KEY (lot_id) REFERENCES lots(id),
+        FOREIGN KEY (talhao_id) REFERENCES talhoes(id),
         FOREIGN KEY (farm_id) REFERENCES farms(id)
       )
     ''');
