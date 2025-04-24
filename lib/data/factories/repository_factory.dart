@@ -5,12 +5,14 @@ import '../../domain/models/employee_model.dart';
 import '../../domain/models/product_model.dart';
 import '../../domain/models/talhao_model.dart';
 import '../../domain/models/harvest_model.dart';
+import '../../domain/models/farm_activity_model.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/farm_repository.dart';
 import '../repositories/employee_repository.dart';
 import '../repositories/product_repository.dart';
 import '../repositories/talhao_repository.dart';
 import '../repositories/harvest_repository.dart';
+import '../repositories/farm_activity_repository.dart';
 import '../repositories/sync_status_repository.dart';
 import '../repositories/sync_aware_repository.dart';
 
@@ -69,6 +71,19 @@ class RepositoryFactory {
       baseRepo,
       SyncStatusRepository(),
       'harvest',
+    );
+  }
+
+  static Repository<FarmActivity> createFarmActivityRepository({
+    bool syncAware = false,
+  }) {
+    final baseRepo = FarmActivityRepository();
+    if (!syncAware) return baseRepo;
+
+    return SyncAwareRepository<FarmActivity>(
+      baseRepo,
+      SyncStatusRepository(),
+      'farm_activity',
     );
   }
 }

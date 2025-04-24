@@ -65,12 +65,12 @@ class HarvestRepository implements Repository<Harvest> {
     return List.generate(maps.length, (i) => Harvest.fromMap(maps[i]));
   }
 
-  Future<List<Harvest>> getHarvestsByTalhaoId(String talhaoId) async {
+  Future<List<Harvest>> getHarvestsByYear(int year, String farmId) async {
     final db = await _appDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'harvests',
-      where: 'talhao_id = ?',
-      whereArgs: [talhaoId],
+      where: 'year = ? AND farm_id = ?',
+      whereArgs: [year, farmId],
     );
     return List.generate(maps.length, (i) => Harvest.fromMap(maps[i]));
   }

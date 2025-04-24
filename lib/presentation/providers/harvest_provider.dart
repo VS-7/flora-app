@@ -43,26 +43,47 @@ class HarvestProvider extends ChangeNotifier {
     }
   }
 
-  // Load harvests by lot ID
-  Future<void> loadHarvestsByTalhaoId(String talhaoId) async {
+  // Load current year harvest
+  Future<void> loadCurrentYearHarvest(String farmId) async {
     _setLoading(true);
     try {
-      _harvests = await _harvestService.getHarvestsByTalhaoId(talhaoId);
+      final currentYearHarvest = await _harvestService.getCurrentYearHarvest(
+        farmId,
+      );
 
-      // Reset current harvest if the list changes
-      if (_harvests.isNotEmpty) {
-        if (_currentHarvest == null ||
-            !_harvests.any((h) => h.id == _currentHarvest!.id)) {
-          _currentHarvest = _harvests.first;
+      if (currentYearHarvest != null) {
+        if (!_harvests.any((h) => h.id == currentYearHarvest.id)) {
+          _harvests.add(currentYearHarvest);
         }
-      } else {
-        _currentHarvest = null;
+        _currentHarvest = currentYearHarvest;
       }
 
       _clearError();
       notifyListeners();
     } catch (e) {
-      _setError('Failed to load harvests for lot: ${e.toString()}');
+      _setError('Failed to load current year harvest: ${e.toString()}');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Load harvest by year
+  Future<void> loadHarvestByYear(String farmId, int year) async {
+    _setLoading(true);
+    try {
+      final harvest = await _harvestService.getHarvestByYear(farmId, year);
+
+      if (harvest != null) {
+        if (!_harvests.any((h) => h.id == harvest.id)) {
+          _harvests.add(harvest);
+        }
+        _currentHarvest = harvest;
+      }
+
+      _clearError();
+      notifyListeners();
+    } catch (e) {
+      _setError('Failed to load harvest for year $year: ${e.toString()}');
     } finally {
       _setLoading(false);
     }
@@ -114,28 +135,20 @@ class HarvestProvider extends ChangeNotifier {
     }
   }
 
-  // Create a new harvest
-  Future<Harvest?> createHarvest({
+  // Create a new yearly harvest
+  Future<Harvest?> createYearlyHarvest({
+    required String name,
+    required int year,
     required DateTime startDate,
-    required String coffeeType,
-    required int totalQuantity,
-    required int quality,
-    String? weather,
-    required String talhaoId,
     required String farmId,
-    List<String>? usedProducts,
   }) async {
     _setLoading(true);
     try {
-      final harvest = await _harvestService.createHarvest(
+      final harvest = await _harvestService.createYearlyHarvest(
+        name: name,
+        year: year,
         startDate: startDate,
-        coffeeType: coffeeType,
-        totalQuantity: totalQuantity,
-        quality: quality,
-        weather: weather,
-        talhaoId: talhaoId,
         farmId: farmId,
-        usedProducts: usedProducts,
       );
 
       _harvests.add(harvest);
@@ -159,25 +172,17 @@ class HarvestProvider extends ChangeNotifier {
   // Update an existing harvest
   Future<bool> updateHarvest({
     required String id,
+    String? name,
+    int? year,
     DateTime? startDate,
-    String? coffeeType,
-    int? totalQuantity,
-    int? quality,
-    String? weather,
-    String? talhaoId,
-    List<String>? usedProducts,
   }) async {
     _setLoading(true);
     try {
       await _harvestService.updateHarvest(
         id: id,
+        name: name,
+        year: year,
         startDate: startDate,
-        coffeeType: coffeeType,
-        totalQuantity: totalQuantity,
-        quality: quality,
-        weather: weather,
-        talhaoId: talhaoId,
-        usedProducts: usedProducts,
       );
 
       // Update the local list
@@ -214,7 +219,7 @@ class HarvestProvider extends ChangeNotifier {
       // Remove from the local list
       _harvests.removeWhere((harvest) => harvest.id == id);
 
-      // If the deleted harvest was the current one, select another if available
+      // If the deleted harvest is the current one, select another one if available
       if (_currentHarvest?.id == id) {
         _currentHarvest = _harvests.isNotEmpty ? _harvests.first : null;
       }
@@ -230,72 +235,7 @@ class HarvestProvider extends ChangeNotifier {
     }
   }
 
-  // Add a product to a harvest
-  Future<bool> addProductToHarvest(String harvestId, String productId) async {
-    _setLoading(true);
-    try {
-      await _harvestService.addProductToHarvest(harvestId, productId);
-
-      // Update the harvest in the local list
-      final index = _harvests.indexWhere((harvest) => harvest.id == harvestId);
-      if (index != -1) {
-        final updatedHarvest = await _harvestService.getById(harvestId);
-        if (updatedHarvest != null) {
-          _harvests[index] = updatedHarvest;
-
-          // If the updated harvest is the current one, update the reference
-          if (_currentHarvest?.id == harvestId) {
-            _currentHarvest = updatedHarvest;
-          }
-        }
-      }
-
-      _clearError();
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _setError('Failed to add product to harvest: ${e.toString()}');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Remove a product from a harvest
-  Future<bool> removeProductFromHarvest(
-    String harvestId,
-    String productId,
-  ) async {
-    _setLoading(true);
-    try {
-      await _harvestService.removeProductFromHarvest(harvestId, productId);
-
-      // Update the harvest in the local list
-      final index = _harvests.indexWhere((harvest) => harvest.id == harvestId);
-      if (index != -1) {
-        final updatedHarvest = await _harvestService.getById(harvestId);
-        if (updatedHarvest != null) {
-          _harvests[index] = updatedHarvest;
-
-          // If the updated harvest is the current one, update the reference
-          if (_currentHarvest?.id == harvestId) {
-            _currentHarvest = updatedHarvest;
-          }
-        }
-      }
-
-      _clearError();
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _setError('Failed to remove product from harvest: ${e.toString()}');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Utilities to manage state
+  // Private utility methods
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();

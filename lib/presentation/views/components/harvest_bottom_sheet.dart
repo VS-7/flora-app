@@ -23,13 +23,9 @@ class HarvestBottomSheet extends StatefulWidget {
 class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
-  final _coffeeTypeController = TextEditingController();
-  final _quantityController = TextEditingController();
-  final _qualityController = TextEditingController();
-  final _weatherController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _yearController = TextEditingController();
 
-  String? _selectedTalhaoId;
-  List<String> _selectedProducts = [];
   bool _isLoading = false;
   DateTime _selectedDate = DateTime.now();
 
@@ -40,14 +36,11 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
     if (widget.harvest != null) {
       _selectedDate = widget.harvest!.startDate;
       _dateController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
-      _coffeeTypeController.text = widget.harvest!.coffeeType;
-      _quantityController.text = widget.harvest!.totalQuantity.toString();
-      _qualityController.text = widget.harvest!.quality.toString();
-      _weatherController.text = widget.harvest!.weather ?? '';
-      _selectedTalhaoId = widget.harvest!.talhaoId;
-      _selectedProducts = widget.harvest!.usedProducts?.toList() ?? [];
+      _nameController.text = widget.harvest!.name;
+      _yearController.text = widget.harvest!.year.toString();
     } else {
       _dateController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
+      _yearController.text = DateTime.now().year.toString();
     }
 
     // Carregar talhões se necessário
@@ -67,35 +60,14 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
       if (!talhaoProvider.hasTalhoes) {
         await talhaoProvider.loadTalhoesByFarmId(farmProvider.currentFarm!.id);
       }
-      // Se for uma nova colheita e houver talhões, selecionar o primeiro por padrão
-      if (widget.harvest == null &&
-          talhaoProvider.talhoes.isNotEmpty &&
-          _selectedTalhaoId == null) {
-        setState(() {
-          _selectedTalhaoId = talhaoProvider.talhoes.first.id;
-        });
-      }
-
-      // Carregar produtos se não estiverem carregados
-      final productProvider = Provider.of<ProductProvider>(
-        context,
-        listen: false,
-      );
-      if (!productProvider.hasProducts) {
-        await productProvider.loadProductsByFarmId(
-          farmProvider.currentFarm!.id,
-        );
-      }
     }
   }
 
   @override
   void dispose() {
     _dateController.dispose();
-    _coffeeTypeController.dispose();
-    _quantityController.dispose();
-    _qualityController.dispose();
-    _weatherController.dispose();
+    _nameController.dispose();
+    _yearController.dispose();
     super.dispose();
   }
 
@@ -128,13 +100,6 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
 
   Future<void> _saveHarvest() async {
     if (_formKey.currentState!.validate()) {
-      if (_selectedTalhaoId == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Selecione um talhão')));
-        return;
-      }
-
       setState(() {
         _isLoading = true;
       });
@@ -156,40 +121,25 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
         return;
       }
 
-      final coffeeType = _coffeeTypeController.text.trim();
-      final totalQuantity = int.parse(_quantityController.text.trim());
-      final quality = int.parse(_qualityController.text.trim());
-      final weather =
-          _weatherController.text.trim().isEmpty
-              ? null
-              : _weatherController.text.trim();
+      final name = _nameController.text.trim();
+      final year = int.parse(_yearController.text.trim());
 
       try {
         if (widget.harvest == null) {
-          // Criar nova colheita
-          await harvestProvider.createHarvest(
+          // Criar nova colheita anual
+          await harvestProvider.createYearlyHarvest(
+            name: name,
+            year: year,
             startDate: _selectedDate,
-            coffeeType: coffeeType,
-            totalQuantity: totalQuantity,
-            quality: quality,
-            weather: weather,
-            talhaoId: _selectedTalhaoId!,
             farmId: farmProvider.currentFarm!.id,
-            usedProducts:
-                _selectedProducts.isNotEmpty ? _selectedProducts : null,
           );
         } else {
           // Atualizar colheita existente
           await harvestProvider.updateHarvest(
             id: widget.harvest!.id,
+            name: name,
+            year: year,
             startDate: _selectedDate,
-            coffeeType: coffeeType,
-            totalQuantity: totalQuantity,
-            quality: quality,
-            weather: weather,
-            talhaoId: _selectedTalhaoId,
-            usedProducts:
-                _selectedProducts.isNotEmpty ? _selectedProducts : null,
           );
         }
 
@@ -217,13 +167,6 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isEditing = widget.harvest != null;
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom + 20;
-
-    // Obter listas de talhões e produtos
-    final talhaoProvider = Provider.of<TalhaoProvider>(context);
-    final productProvider = Provider.of<ProductProvider>(context);
-
-    final talhoes = talhaoProvider.talhoes;
-    final products = productProvider.products;
 
     return Container(
       decoration: BoxDecoration(
@@ -264,11 +207,11 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
               ),
               const SizedBox(height: 20),
 
-              // Seleção de talhão
-              DropdownButtonFormField<String>(
-                value: _selectedTalhaoId,
+              // Nome da colheita
+              TextFormField(
+                controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Talhão',
+                  labelText: 'Nome da Colheita',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -276,22 +219,12 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
                   fillColor:
                       isDarkMode ? const Color(0xFF2A2A2A) : Colors.grey[100],
                 ),
-                items:
-                    talhoes.map<DropdownMenuItem<String>>((Talhao talhao) {
-                      return DropdownMenuItem<String>(
-                        value: talhao.id,
-                        child: Text(
-                          '${talhao.name} (${talhao.area.toStringAsFixed(2)} ha)',
-                        ),
-                      );
-                    }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedTalhaoId = value;
-                  });
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Nome é obrigatório';
+                  }
+                  return null;
                 },
-                validator:
-                    (value) => value == null ? 'Selecione um talhão' : null,
               ),
               const SizedBox(height: 16),
 
@@ -322,33 +255,12 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Tipo de café
+              // Ano
               TextFormField(
-                controller: _coffeeTypeController,
-                decoration: InputDecoration(
-                  labelText: 'Tipo de Café',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  filled: true,
-                  fillColor:
-                      isDarkMode ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Tipo de café é obrigatório';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Quantidade
-              TextFormField(
-                controller: _quantityController,
+                controller: _yearController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'Quantidade Total (sacas)',
+                  labelText: 'Ano',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -358,12 +270,12 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Quantidade é obrigatória';
+                    return 'Ano é obrigatório';
                   }
                   try {
-                    final quantity = int.parse(value);
-                    if (quantity <= 0) {
-                      return 'A quantidade deve ser maior que zero';
+                    final year = int.parse(value);
+                    if (year < 2000 || year > 2100) {
+                      return 'Ano deve estar entre 2000 e 2100';
                     }
                   } catch (e) {
                     return 'Digite um valor válido';
@@ -372,98 +284,6 @@ class _HarvestBottomSheetState extends State<HarvestBottomSheet> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Qualidade
-              TextFormField(
-                controller: _qualityController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Qualidade (1-100)',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  filled: true,
-                  fillColor:
-                      isDarkMode ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Qualidade é obrigatória';
-                  }
-                  try {
-                    final quality = int.parse(value);
-                    if (quality < 1 || quality > 100) {
-                      return 'A qualidade deve estar entre 1 e 100';
-                    }
-                  } catch (e) {
-                    return 'Digite um valor válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Condições climáticas (opcional)
-              TextFormField(
-                controller: _weatherController,
-                decoration: InputDecoration(
-                  labelText: 'Condições Climáticas (opcional)',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  filled: true,
-                  fillColor:
-                      isDarkMode ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Produtos utilizados
-              if (products.isNotEmpty) ...[
-                Text(
-                  'Produtos Utilizados:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: isDarkMode ? Colors.white : Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  height: 150,
-                  child: ListView.builder(
-                    itemCount: products.length,
-                    itemBuilder: (context, index) {
-                      final product = products[index];
-                      final isSelected = _selectedProducts.contains(product.id);
-                      return CheckboxListTile(
-                        title: Text(product.name),
-                        subtitle: Text(product.type),
-                        value: isSelected,
-                        activeColor: AppTheme.primaryGreen,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            if (value == true) {
-                              if (!_selectedProducts.contains(product.id)) {
-                                _selectedProducts.add(product.id);
-                              }
-                            } else {
-                              _selectedProducts.remove(product.id);
-                            }
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
 
               // Botão de salvar
               ElevatedButton(

@@ -87,7 +87,7 @@ class _HarvestScreenState extends State<HarvestScreen> {
 
     if (_filterTalhaoId != null && _filterTalhaoId!.isNotEmpty) {
       // Filtrar por talhão
-      await harvestProvider.loadHarvestsByTalhaoId(_filterTalhaoId!);
+      await harvestProvider.loadHarvestsByFarmId(_filterTalhaoId!);
     } else if (_filterStartDate != null && _filterEndDate != null) {
       // Filtrar por período
       await harvestProvider.loadHarvestsByDateRange(
@@ -172,9 +172,7 @@ class _HarvestScreenState extends State<HarvestScreen> {
     }
 
     return harvests.where((harvest) {
-      return harvest.coffeeType.toLowerCase().contains(
-        _searchQuery.toLowerCase(),
-      );
+      return harvest.name.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
@@ -531,7 +529,7 @@ class _HarvestScreenState extends State<HarvestScreen> {
 
         // Encontrar o talhão correspondente
         final talhao = talhaoProvider.talhoes.firstWhere(
-          (t) => t.id == harvest.talhaoId,
+          (t) => t.id == harvest.farmId,
           orElse:
               () => Talhao(
                 id: '',
@@ -554,23 +552,22 @@ class _HarvestScreenState extends State<HarvestScreen> {
             ),
           ),
           title: Text(
-            '${harvest.coffeeType} - ${dateFormat.format(harvest.startDate)}',
+            '${harvest.name} - ${dateFormat.format(harvest.startDate)}',
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Talhão: ${talhao.name}',
+                'Ano: ${harvest.year}',
                 style: TextStyle(
                   color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
                 ),
               ),
               Text(
-                'Quantidade: ${harvest.totalQuantity} sacas',
+                'Talhão: ${talhao.name}',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
-                  fontWeight: FontWeight.w500,
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
                 ),
               ),
             ],
@@ -610,7 +607,7 @@ class _HarvestScreenState extends State<HarvestScreen> {
 
     // Encontrar o talhão correspondente
     final talhao = talhaoProvider.talhoes.firstWhere(
-      (t) => t.id == harvest.talhaoId,
+      (t) => t.id == harvest.farmId,
       orElse:
           () => Talhao(
             id: '',
@@ -622,15 +619,6 @@ class _HarvestScreenState extends State<HarvestScreen> {
             updatedAt: DateTime.now(),
           ),
     );
-
-    // Buscar produtos utilizados
-    List<Product> usedProductsList = [];
-    if (harvest.usedProducts != null && harvest.usedProducts!.isNotEmpty) {
-      usedProductsList =
-          productProvider.products
-              .where((p) => harvest.usedProducts!.contains(p.id))
-              .toList();
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -674,7 +662,7 @@ class _HarvestScreenState extends State<HarvestScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            harvest.coffeeType,
+                            harvest.name,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -689,92 +677,20 @@ class _HarvestScreenState extends State<HarvestScreen> {
                       dateFormat.format(harvest.startDate),
                       Icons.calendar_today,
                     ),
-                    _buildDetailRow('Talhão:', talhao.name, Icons.crop_square),
                     _buildDetailRow(
-                      'Área do Talhão:',
-                      '${talhao.area.toStringAsFixed(2)} ha',
-                      Icons.straighten,
+                      'Ano:',
+                      harvest.year.toString(),
+                      Icons.date_range,
                     ),
                     _buildDetailRow(
-                      'Quantidade Total:',
-                      '${harvest.totalQuantity} sacas',
-                      Icons.inventory,
+                      'Fazenda ID:',
+                      harvest.farmId,
+                      Icons.home_work,
                     ),
-                    _buildDetailRow(
-                      'Qualidade:',
-                      '${harvest.quality}/100',
-                      Icons.star,
-                    ),
-                    if (harvest.weather != null && harvest.weather!.isNotEmpty)
-                      _buildDetailRow(
-                        'Condições Climáticas:',
-                        harvest.weather!,
-                        Icons.wb_sunny,
-                      ),
                   ],
                 ),
               ),
             ),
-
-            // Lista de produtos utilizados
-            if (usedProductsList.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 8, bottom: 8),
-                child: Text(
-                  'Produtos Utilizados',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: usedProductsList.length,
-                  separatorBuilder:
-                      (context, index) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final product = usedProductsList[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: AppTheme.primaryGreen.withOpacity(0.2),
-                        child: Icon(
-                          Icons.science,
-                          color: AppTheme.primaryGreen,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(product.name),
-                      subtitle: Text(
-                        '${product.type}',
-                        style: TextStyle(
-                          color:
-                              isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ] else ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 8, top: 8),
-                child: Text(
-                  'Nenhum produto utilizado',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),
@@ -811,5 +727,30 @@ class _HarvestScreenState extends State<HarvestScreen> {
         ],
       ),
     );
+  }
+
+  void _onTapCreateHarvest(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const HarvestBottomSheet(),
+    ).then((result) {
+      if (result == true) {
+        // Refresh harvests list
+        if (mounted) {
+          final farmProvider = Provider.of<FarmProvider>(
+            context,
+            listen: false,
+          );
+          if (farmProvider.currentFarm != null) {
+            Provider.of<HarvestProvider>(
+              context,
+              listen: false,
+            ).loadHarvestsByFarmId(farmProvider.currentFarm!.id);
+          }
+        }
+      }
+    });
   }
 }

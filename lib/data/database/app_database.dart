@@ -22,7 +22,7 @@ class AppDatabase {
     String path = join(await getDatabasesPath(), 'flora_app.db');
     return await openDatabase(
       path,
-      version: 5,
+      version: 7,
       onCreate: _createDb,
       onUpgrade: _onUpgrade,
     );
@@ -51,6 +51,15 @@ class AppDatabase {
       await _createProductUseTable(db);
       await _createEmployeeProductionTable(db);
       await _createDailyReceiptTable(db);
+    }
+    if (oldVersion < 6) {
+      // Adicionar tabela de atividades da fazenda
+      await _createFarmActivityTable(db);
+    }
+    if (oldVersion < 7) {
+      // Atualizar tabela de colheitas para modelo anual
+      await db.execute('DROP TABLE IF EXISTS harvests');
+      await _createHarvestTable(db);
     }
   }
 
@@ -121,6 +130,30 @@ class AppDatabase {
     await _createProductUseTable(db);
     await _createEmployeeProductionTable(db);
     await _createDailyReceiptTable(db);
+    await _createFarmActivityTable(db);
+  }
+
+  Future<void> _createFarmActivityTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE farm_activities(
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        date TEXT NOT NULL,
+        type TEXT NOT NULL,
+        farm_id TEXT NOT NULL,
+        talhao_id TEXT,
+        harvest_id TEXT,
+        employee_id TEXT,
+        product_ids TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (farm_id) REFERENCES farms(id),
+        FOREIGN KEY (talhao_id) REFERENCES talhoes(id),
+        FOREIGN KEY (harvest_id) REFERENCES harvests(id),
+        FOREIGN KEY (employee_id) REFERENCES employees(id)
+      )
+    ''');
   }
 
   Future<void> _createSyncStatusTable(Database db) async {
@@ -236,17 +269,12 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE harvests(
         id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        year INTEGER NOT NULL,
         start_date TEXT NOT NULL,
-        coffee_type TEXT NOT NULL,
-        total_quantity INTEGER NOT NULL,
-        quality INTEGER NOT NULL,
-        weather TEXT,
-        talhao_id TEXT NOT NULL,
         farm_id TEXT NOT NULL,
-        used_products TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        FOREIGN KEY (talhao_id) REFERENCES talhoes(id),
         FOREIGN KEY (farm_id) REFERENCES farms(id)
       )
     ''');

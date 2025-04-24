@@ -113,8 +113,8 @@ class _EmployeeBottomSheetState extends State<EmployeeBottomSheet> {
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom + 20;
     return Container(
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1D1D1D) : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        color: isDarkMode ? const Color(0xFF161817) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
       ),
       padding: EdgeInsets.only(
         left: 20,
@@ -144,6 +144,10 @@ class _EmployeeBottomSheetState extends State<EmployeeBottomSheet> {
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
                   color: isDarkMode ? Colors.white70 : Colors.black54,
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        isDarkMode ? const Color(0xFF242625) : Colors.black54,
+                  ),
                 ),
               ],
             ),
@@ -153,9 +157,18 @@ class _EmployeeBottomSheetState extends State<EmployeeBottomSheet> {
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Nome',
+                hintText: 'Nome',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor:
@@ -174,13 +187,22 @@ class _EmployeeBottomSheetState extends State<EmployeeBottomSheet> {
             TextFormField(
               controller: _roleController,
               decoration: InputDecoration(
-                labelText: 'Função/Cargo',
+                hintText: 'Função/Cargo',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor:
-                    isDarkMode ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                    isDarkMode ? const Color(0xFF242625) : Colors.grey[100],
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -196,13 +218,22 @@ class _EmployeeBottomSheetState extends State<EmployeeBottomSheet> {
               controller: _costController,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText: 'Valor da Diária (R\$)',
+                hintText: 'Valor da Diária (R\$)',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor:
-                    isDarkMode ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                    isDarkMode ? const Color(0xFF242625) : Colors.grey[100],
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -249,6 +280,7 @@ class _EmployeeBottomSheetState extends State<EmployeeBottomSheet> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF242625),
                         ),
                       ),
             ),

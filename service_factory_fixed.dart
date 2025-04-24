@@ -71,9 +71,8 @@ class ServiceFactory {
   }
 
   static Service<FarmActivity> createFarmActivityService() {
-    final repository = RepositoryFactory.createFarmActivityRepository(
-      syncAware: true,
-    );
+    final repository =
+        RepositoryFactory.createFarmActivityRepository(syncAware: true);
     return FarmActivityService(repository);
   }
 
@@ -169,3 +168,5 @@ class ServiceFactory {
     );
   }
 }
+
+

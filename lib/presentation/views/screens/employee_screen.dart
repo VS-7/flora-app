@@ -102,7 +102,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           Container(
             color:
                 isDarkMode ? AppTheme.darkBackground : AppTheme.lightBackground,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             child: TextField(
               controller: _searchController,
               onChanged: (value) {
@@ -134,7 +134,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                           },
                         )
                         : null,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -219,7 +219,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           (context, index) => Divider(
             height: 1,
             color: isDarkMode ? Colors.grey[800] : Colors.grey[300],
-            indent: 80, // Indentação para alinhar com o avatar
+            indent: 70, // Indentação para alinhar com o avatar
           ),
       itemBuilder: (context, index) {
         final employee = employees[index];

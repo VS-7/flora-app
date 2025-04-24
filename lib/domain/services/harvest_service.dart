@@ -46,26 +46,18 @@ class HarvestService implements Service<Harvest> {
     await _repository.delete(id);
   }
 
-  Future<Harvest> createHarvest({
+  Future<Harvest> createYearlyHarvest({
+    required String name,
+    required int year,
     required DateTime startDate,
-    required String coffeeType,
-    required int totalQuantity,
-    required int quality,
-    String? weather,
-    required String talhaoId,
     required String farmId,
-    List<String>? usedProducts,
   }) async {
     final harvest = Harvest(
       id: _uuid.v4(),
+      name: name,
+      year: year,
       startDate: startDate,
-      coffeeType: coffeeType,
-      totalQuantity: totalQuantity,
-      quality: quality,
-      weather: weather,
-      talhaoId: talhaoId,
       farmId: farmId,
-      usedProducts: usedProducts,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -75,24 +67,16 @@ class HarvestService implements Service<Harvest> {
 
   Future<void> updateHarvest({
     required String id,
+    String? name,
+    int? year,
     DateTime? startDate,
-    String? coffeeType,
-    int? totalQuantity,
-    int? quality,
-    String? weather,
-    String? talhaoId,
-    List<String>? usedProducts,
   }) async {
     final harvest = await _repository.getById(id);
     if (harvest != null) {
       final updatedHarvest = harvest.copyWith(
+        name: name,
+        year: year,
         startDate: startDate,
-        coffeeType: coffeeType,
-        totalQuantity: totalQuantity,
-        quality: quality,
-        weather: weather,
-        usedProducts: usedProducts,
-        talhaoId: talhaoId,
       );
       await _repository.update(updatedHarvest);
     }
@@ -102,8 +86,15 @@ class HarvestService implements Service<Harvest> {
     return await _harvestRepository.getHarvestsByFarmId(farmId);
   }
 
-  Future<List<Harvest>> getHarvestsByTalhaoId(String talhaoId) async {
-    return await _harvestRepository.getHarvestsByTalhaoId(talhaoId);
+  Future<Harvest?> getCurrentYearHarvest(String farmId) async {
+    final currentYear = DateTime.now().year;
+    final harvests = await _harvestRepository.getHarvestsByFarmId(farmId);
+    return harvests.where((h) => h.year == currentYear).firstOrNull;
+  }
+
+  Future<Harvest?> getHarvestByYear(String farmId, int year) async {
+    final harvests = await _harvestRepository.getHarvestsByFarmId(farmId);
+    return harvests.where((h) => h.year == year).firstOrNull;
   }
 
   Future<List<Harvest>> getHarvestsByDateRange(
@@ -116,32 +107,5 @@ class HarvestService implements Service<Harvest> {
       endDate,
       farmId,
     );
-  }
-
-  Future<void> addProductToHarvest(String harvestId, String productId) async {
-    final harvest = await _repository.getById(harvestId);
-    if (harvest != null) {
-      final usedProducts = List<String>.from(harvest.usedProducts ?? []);
-      if (!usedProducts.contains(productId)) {
-        usedProducts.add(productId);
-        final updatedHarvest = harvest.copyWith(usedProducts: usedProducts);
-        await _repository.update(updatedHarvest);
-      }
-    }
-  }
-
-  Future<void> removeProductFromHarvest(
-    String harvestId,
-    String productId,
-  ) async {
-    final harvest = await _repository.getById(harvestId);
-    if (harvest != null && harvest.usedProducts != null) {
-      final usedProducts = List<String>.from(harvest.usedProducts!);
-      if (usedProducts.contains(productId)) {
-        usedProducts.remove(productId);
-        final updatedHarvest = harvest.copyWith(usedProducts: usedProducts);
-        await _repository.update(updatedHarvest);
-      }
-    }
   }
 }
